@@ -1,9 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime, date
 
-# Inicializa o SQLAlchemy
 db = SQLAlchemy()
 
-# Modelo de Usuário
 class Usuario(db.Model):
     __tablename__ = "usuario"
 
@@ -18,7 +17,6 @@ class Usuario(db.Model):
         self.senha = senha
 
 
-# Modelo de Conversa
 class Conversa(db.Model):
     __tablename__ = "conversa"
 
@@ -27,10 +25,21 @@ class Conversa(db.Model):
     mensagem_usuario = db.Column(db.Text, nullable=False)
     mensagem_bot = db.Column(db.Text, nullable=False)
 
-    # Relacionamento: um usuário pode ter várias conversas
     usuario = db.relationship("Usuario", backref=db.backref("conversas", lazy=True))
 
     def __init__(self, usuario_id, mensagem_usuario, mensagem_bot):
         self.usuario_id = usuario_id
         self.mensagem_usuario = mensagem_usuario
         self.mensagem_bot = mensagem_bot
+
+class Emocao(db.Model):
+    __tablename__ = "emocoes"
+    
+    id = db.Column(db.Integer, primary_key=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
+    tipo = db.Column(db.String(50), nullable=False)  # ex: "triste", "feliz", "ansioso"
+    intensidade = db.Column(db.Integer, nullable=True)  # 1 a 10
+    observacao = db.Column(db.Text, nullable=True)  # nota do usuário
+    data_criacao = db.Column(db.DateTime, default=datetime.utcnow)
+
+    usuario = db.relationship("Usuario", backref="emocoes")
